@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "18937013097",
+    "project_id": "my-nice-fproject",
+    "storage_bucket": "my-nice-fproject.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18937013097:android:5e9fe46c5ec6e0f709d3f8",
+        "android_client_info": {
+          "package_name": "com.example.flutterappdev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDctALjWl0L1QFx8kd8jpRxvv3OueYZyvQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
