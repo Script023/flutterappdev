@@ -5,7 +5,6 @@ import 'package:flutterappdev/firebase_options.dart';
 import 'package:flutterappdev/views/login-views.dart';
 import 'package:flutterappdev/views/register-views.dart';
 import 'package:flutterappdev/views/verifyemail-views.dart';
-import 'dart:developer' as devtools show log;
 
 void main() {
   // enable flutter binding before runApp to ensure that Firebase is initialized before the app runs
