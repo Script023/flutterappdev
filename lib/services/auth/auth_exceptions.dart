@@ -11,6 +11,8 @@ class EmailAlreadyInUseAuthException implements Exception {}
 
 class InvalidEmailAuthException implements Exception {}
 
+class TooManyRequestsAuthException implements Exception {}
+
 // Generic exceptions
 class GenericAuthException implements Exception {}
 

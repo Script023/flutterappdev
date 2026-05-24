@@ -1,6 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterappdev/routes.dart';
+import 'package:flutterappdev/services/auth/auth_exceptions.dart';
+import 'package:flutterappdev/services/auth/auth_service.dart';
 import 'package:flutterappdev/utilities/show-error-dialog.dart';
 
 class VerifyEmailView extends StatefulWidget {
@@ -25,25 +26,26 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
           ),
           TextButton(
             onPressed: () async {
-              final user = FirebaseAuth.instance.currentUser;
+              Authservice.firebase().currentUser;
               try {
-                await user?.sendEmailVerification();
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'too-many-requests') {
-                  await showErrorDialog(
-                    context,
-                    'Too many requests. Please try again later.',
-                  );
-                } else {
-                  await showErrorDialog(context, 'Error: ${e.code}');
-                }
+                await Authservice.firebase().sendEmailVerification();
+              } on TooManyRequestsAuthException {
+                await showErrorDialog(
+                  context,
+                  'Too many requests. Please try again later.',
+                );
+              } on GenericAuthException {
+                await showErrorDialog(
+                  context,
+                  'An error occurred while sending the email verification. Please try again later.',
+                );
               }
             },
             child: const Text('Send Verification Email'),
           ),
           TextButton(
             onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+              await Authservice.firebase().signOut();
               Navigator.of(
                 context,
               ).pushNamedAndRemoveUntil(registerRoute, (route) => false);
