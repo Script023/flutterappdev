@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutterappdev/services/auth/auth_exceptions.dart';
 import 'package:flutterappdev/routes.dart';
@@ -54,7 +53,10 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                await Authservice.firebase().login(email: email, password: password);
+                await Authservice.firebase().login(
+                  email: email,
+                  password: password,
+                );
                 final user = Authservice.firebase().currentUser;
                 if (user?.isEmailVerified ?? false) {
                   // User is verified, proceed to notes view
@@ -66,23 +68,16 @@ class _LoginViewState extends State<LoginView> {
                   Navigator.of(
                     context,
                   ).pushNamedAndRemoveUntil(verifyEmailRoute, (route) => false);
-                
                 }
               } on UserNotFoundAuthException {
-                await showErrorDialog(
-                  context, 
-                  'User not found',
-                );
+                await showErrorDialog(context, 'User not found');
               } on WrongPasswordAuthException {
                 await showErrorDialog(
                   context,
                   'Wrong password provided for that user.',
                 );
               } on GenericAuthException {
-                await showErrorDialog(
-                  context,
-                  'Authentication error',
-                );
+                await showErrorDialog(context, 'Authentication error');
               }
             },
             child: const Text('Login'),
