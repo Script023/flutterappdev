@@ -8,8 +8,9 @@ class AuthUser {
   // boolean value property/field which can be true/false
   final bool isEmailVerified;
 
-  const AuthUser(this.isEmailVerified);
+  const AuthUser({required this.isEmailVerified});
   // factory method used to create this auth user which
   // will be used through out the code
-  factory AuthUser.fromFirebase(User user) => AuthUser(user.emailVerified);
+  factory AuthUser.fromFirebase(User user) =>
+      AuthUser(isEmailVerified: user.emailVerified);
 }
