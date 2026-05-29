@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutterappdev/enums/menu_action.dart';
 import 'package:flutterappdev/routes.dart';
 import 'package:flutterappdev/services/auth/auth_service.dart';
+import 'package:flutterappdev/services/crud/note_services.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -11,6 +12,20 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
+  String get userEmail => Authservice.firebase().currentUser!.email!;
+  late final NotesService _notesService;
+  @override
+  void initState() {
+    _notesService = NotesService();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _notesService.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +59,35 @@ class _NotesViewState extends State<NotesView> {
           ),
         ],
       ),
-      body: const Text('This is the main UI'),
+      body: FutureBuilder(
+        future: _notesService.getOrCreateUser(email: userEmail),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              return StreamBuilder(
+                stream: _notesService.allNotes,
+                builder: (context, snapshot) {
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.none:
+                      // TODO: Handle this case.
+                      break;
+                    case ConnectionState.waiting:
+                      // TODO: Handle this case.
+                      break;
+                    case ConnectionState.active:
+                      // TODO: Handle this case.
+                      break;
+                    case ConnectionState.done:
+                      // TODO: Handle this case.
+                      break;
+                  }
+                },
+              );
+            default:
+              return const CircularProgressIndicator();
+          }
+        },
+      ),
     );
   }
 }
