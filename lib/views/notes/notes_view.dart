@@ -32,6 +32,12 @@ class _NotesViewState extends State<NotesView> {
       appBar: AppBar(
         title: const Text('Your Notes'),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(newNoteRoute);
+            },
+            icon: const Icon(Icons.add),
+          ),
           PopupMenuButton<MenuAction>(
             //need to understand how to use the onSelected callback to handle menu
             onSelected: (value) async {
@@ -42,6 +48,8 @@ class _NotesViewState extends State<NotesView> {
                   //break;
                   if (shouldLogout) {
                     await Authservice.firebase().signOut();
+                    //do not want this screen overlapping with the login screen
+                    //that is why we used pushedNamedAndRemoveUntil method
                     Navigator.of(
                       context,
                     ).pushNamedAndRemoveUntil(loginRoute, (_) => false);
@@ -68,7 +76,10 @@ class _NotesViewState extends State<NotesView> {
                 stream: _notesService.allNotes,
                 builder: (context, snapshot) {
                   switch (snapshot.connectionState) {
+                    // connection of the allNote stream will be actually be waiting
+                    // since the user has not created any note so dart is waiting
                     case ConnectionState.waiting:
+                    case ConnectionState.active:
                       return const Text('waiting for all notes');
                     default:
                       return const CircularProgressIndicator();

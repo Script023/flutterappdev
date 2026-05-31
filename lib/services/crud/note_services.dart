@@ -8,6 +8,11 @@ import 'package:path_provider/path_provider.dart';
 class NotesService {
   Database? _db;
   List<DatabaseNote> _notes = [];
+  NotesService._sharedInstance();
+  static final NotesService _shared = NotesService._sharedInstance();
+  factory NotesService() => _shared;
+
+  // must be initialized
   // what these does is basically is to controll a stream
   // of database. the stream controller is in control of the
   // changes to the note list. it directly interfaces with the
@@ -274,6 +279,11 @@ class DatabaseNote {
     required this.text,
     required this.isSyncedWithCloud,
   });
+  // fromRow is a method used to build dart object from a raw data row
+  // such as map returned by a database query
+  // it keeps data centralized so that callers can simply pass
+  // the row data to fromRow method and recieve a populated
+  // object instead of manually reading each colunm every time
   DatabaseNote.fromRow(Map<String, Object?> map)
     : id = map[idColumn] as int,
       userId = map[userIdColumn] as int,
