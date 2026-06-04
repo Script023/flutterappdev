@@ -8,7 +8,13 @@ import 'package:path_provider/path_provider.dart';
 class NotesService {
   Database? _db;
   List<DatabaseNote> _notes = [];
-  NotesService._sharedInstance();
+  NotesService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
   static final NotesService _shared = NotesService._sharedInstance();
   factory NotesService() => _shared;
 
@@ -18,10 +24,10 @@ class NotesService {
   // changes to the note list. it directly interfaces with the
   // outside world, listens to changes
   // broadcast is a method of stream....??
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
+
   Future<DatabaseUser> getOrCreateUser({required String email}) async {
     try {
       final user = await getUser(email: email);
@@ -36,40 +42,17 @@ class NotesService {
 
   Future<void> _cacheNotes() async {
     final allNotes = await getAllNotes();
-    // stream is simply an evoolution of value through time
     _notes = allNotes.toList();
+    print("Cached notes: $_notes"); // 👈 debug
     _notesStreamController.add(_notes);
-  }
-
-  // the int indicates number of notes
-  Future<DatabaseNote> updateNote({
-    required DatabaseNote note,
-    required String text,
-  }) async {
-    await _ensureDbIsOpen();
-    final db = _getDatabaseOrThrow();
-    // make sure the note exist
-
-    await getNote(id: note.id);
-    final updateCount = await db.update(noteTable, {
-      textColumn: text,
-      isSyncedWithCloudColumn: 0,
-    });
-    if (updateCount == 0) {
-      throw CouldNotUpdateNote();
-    } else {
-      final updatedNote = await getNote(id: note.id);
-      _notes.removeWhere((note) => note.id == updatedNote.id);
-      _notes.add(updatedNote);
-      _notesStreamController.add(_notes);
-      return updatedNote;
-    }
   }
 
   Future<Iterable<DatabaseNote>> getAllNotes() async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
     final notes = await db.query(noteTable);
+    print("Notes from database: $notes");
+    print("Notes from database length: ${notes.length}");
     return notes.map((noteRow) => DatabaseNote.fromRow(noteRow)).toList();
   }
 
@@ -96,53 +79,72 @@ class NotesService {
   Future<int> deleteAllNotes() async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
-    final numberOfDeletions = await db.delete(noteTable);
-    _notes = [];
-    _notesStreamController.add(_notes);
-    return numberOfDeletions;
-  }
 
-  Future<void> deleteNotes({required int id}) async {
-    await _ensureDbIsOpen();
-    final db = _getDatabaseOrThrow();
-    final deletedCount = await db.delete(
-      noteTable,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    if (deletedCount != 1) {
-      throw CouldNotDeleteNote();
-    } else {
-      _notes.removeWhere((note) => note.id == id);
-      _notesStreamController.add(_notes);
-    }
+    final numberOfDeletions = await db.delete(noteTable);
+
+    // reload from DB so stream stays in sync
+    await _cacheNotes();
+
+    return numberOfDeletions;
   }
 
   Future<DatabaseNote> createNote({required DatabaseUser owner}) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrow();
-    // make sure owner exists in the database with the correct id
     final dbUser = await getUser(email: owner.email);
-    if (dbUser != owner) {
+    if (dbUser.id != owner.id) {
       throw CouldNotFindUser();
-    } else {
-      const text = '';
-      // create the note
-      final noteId = await db.insert(noteTable, {
-        userIdColumn: owner.id,
-        textColumn: text,
-        isSyncedWithCloudColumn: 1,
-      });
-      final note = DatabaseNote(
-        id: noteId,
-        userId: owner.id,
-        text: text,
-        isSyncedWithCloud: true,
-      );
-      _notes.add(note);
-      _notesStreamController.add(_notes);
-      return note;
     }
+
+    const text = '';
+    final noteId = await db.insert(noteTable, {
+      userIdColumn: owner.id,
+      textColumn: text,
+      isSyncedWithCloudColumn: 1,
+    });
+
+    // reload from DB so stream stays in sync
+    await _cacheNotes();
+
+    return await getNote(id: noteId);
+  }
+
+  Future<DatabaseNote> updateNote({
+    required DatabaseNote note,
+    required String text,
+  }) async {
+    await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrow();
+
+    final updateCount = await db.update(
+      noteTable,
+      {textColumn: text, isSyncedWithCloudColumn: 0},
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
+
+    if (updateCount == 0) throw CouldNotUpdateNote();
+
+    // reload from DB so stream stays in sync
+    await _cacheNotes();
+
+    return await getNote(id: note.id);
+  }
+
+  Future<void> deleteNotes({required int id}) async {
+    await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrow();
+
+    final deletedCount = await db.delete(
+      noteTable,
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (deletedCount != 1) throw CouldNotDeleteNote();
+
+    // reload from DB so stream stays in sync
+    await _cacheNotes();
   }
 
   Future<DatabaseUser> getUser({required String email}) async {
@@ -247,7 +249,8 @@ class DatabaseUser {
 
   DatabaseUser.fromRow(Map<String, Object?> map)
     : id = map[idColumn] as int,
-      email = map["emailColumn"] as String;
+      // i think i made a mistake here by making these emailColumn a string instead of a constant
+      email = map[emailColumn] as String;
   @override
   String toString() => 'Person, ID = $id, email = $email';
   @override

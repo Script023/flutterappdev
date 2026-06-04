@@ -3,6 +3,8 @@ import 'package:flutterappdev/enums/menu_action.dart';
 import 'package:flutterappdev/routes.dart';
 import 'package:flutterappdev/services/auth/auth_service.dart';
 import 'package:flutterappdev/services/crud/note_services.dart';
+import 'package:flutterappdev/utilities/dailogs/logout_dailog.dart';
+import 'package:flutterappdev/views/notes/notes_list_view.dart';
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -21,20 +23,19 @@ class _NotesViewState extends State<NotesView> {
   }
 
   @override
-  void dispose() {
-    _notesService.close();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Notes'),
+        title: const Text(
+          'Your Notes',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blueGrey,
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.of(context).pushNamed(newNoteRoute);
+              Navigator.of(context).pushNamed(createOrUpdateNoteRoute);
             },
             icon: const Icon(Icons.add),
           ),
@@ -72,20 +73,31 @@ class _NotesViewState extends State<NotesView> {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              return StreamBuilder(
+              return StreamBuilder<List<DatabaseNote>>(
                 stream: _notesService.allNotes,
                 builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    // connection of the allNote stream will be actually be waiting
-                    // since the user has not created any note so dart is waiting
-                    case ConnectionState.waiting:
-                    case ConnectionState.active:
-                      return const Text('waiting for all notes');
-                    default:
-                      return const CircularProgressIndicator();
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
                   }
+                  // if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  // return const Center(child: Text("No notes yet"));
+                  // }
+                  final allNotes = snapshot.data as List<DatabaseNote>;
+                  return NotesListView(
+                    notes: allNotes,
+                    onDeleteNote: (note) async {
+                      await _notesService.deleteNotes(id: note.id);
+                    },
+                    onTap: (note){
+                      Navigator.of(context).pushNamed(
+                        createOrUpdateNoteRoute,
+                        arguments: note,
+                      );
+                    },
+                  );
                 },
               );
+
             default:
               return const CircularProgressIndicator();
           }
@@ -93,30 +105,4 @@ class _NotesViewState extends State<NotesView> {
       ),
     );
   }
-}
-
-Future<bool> showLogoutDialog(BuildContext context) {
-  return showDialog<bool>(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: const Text('sign out'),
-        content: const Text('Are you sure you want to sign out?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-            child: const Text('Logout'),
-          ),
-        ],
-      );
-    },
-  ).then((value) => value ?? false);
 }
