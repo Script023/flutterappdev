@@ -15,3 +15,5 @@ class CouldNotFindNote implements Exception {}
 class CouldNotUpdateNote implements Exception {}
 
 class DatabaseAlreadyOpen implements Exception {}
+
+class UserShouldBeSetBeforeReadingAllNotes implements Exception {}
