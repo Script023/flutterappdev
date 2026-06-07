@@ -7,14 +7,19 @@ import 'package:flutter/foundation.dart';
 class AuthUser {
   // boolean value property/field which can be true/false
   final bool isEmailVerified;
-  final String? email;
+  final String email;
+  final String id;
 
-  const AuthUser({required this.email, required this.isEmailVerified});
+  const AuthUser({
+    required this.email, 
+    required this.isEmailVerified, 
+    required this.id});
   // factory method used to create this auth user which
   // will be used through out the code
   factory AuthUser.fromFirebase(User user) => AuthUser(
     // read from the firebase user
-    email: user.email,
+    email: user.email!,
+    id: user.uid,
     isEmailVerified: user.emailVerified,
   );
 }
