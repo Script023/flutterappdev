@@ -1,4 +1,6 @@
-class UserAlreadyExists implements Exception {}
+// ignore_for_file: dangling_library_doc_comments
+
+/**class UserAlreadyExists implements Exception {}
 
 class CouldNotDeleteUser implements Exception {}
 
@@ -16,4 +18,4 @@ class CouldNotUpdateNote implements Exception {}
 
 class DatabaseAlreadyOpen implements Exception {}
 
-class UserShouldBeSetBeforeReadingAllNotes implements Exception {}
+class UserShouldBeSetBeforeReadingAllNotes implements Exception {}**/

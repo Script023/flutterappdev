@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutterappdev/services/auth/auth_service.dart';
 import 'package:flutterappdev/services/cloud/cloud_note.dart';
 import 'package:flutterappdev/services/cloud/cloud_storage_exceptions.dart';
 
@@ -36,23 +37,26 @@ class FirebaseCloudStorage {
           .where('ownerUserIdFieldName', isEqualTo: ownerUserId)
           .get()
           .then(
-            (value) => value.docs
-                .map(
-                  (doc) => CloudNote(
-                    documentId: doc.id,
-                    ownerUserId: doc.data()['ownerUserIdFieldName'] as String,
-                    text: doc.data()['textFieldName'] as String,
-                  ),
-                )
-                .toList(),
+            (value) =>
+                value.docs.map((doc) => CloudNote.fromSnapshot(doc)).toList(),
           );
     } catch (e) {
       throw CouldNotGetAllNotesException();
     }
   }
 
-  void createNewNote({required String ownerUserId}) async {
-    await notes.add({'ownerUserIdFieldName': ownerUserId, 'textFieldName': ''});
+  Future<CloudNote> createNewNote({required String ownerUserId}) async {
+    final document = await notes.add({
+      'ownerUserIdFieldName': ownerUserId,
+    });
+    final currentUser = Authservice.firebase().currentUser!;
+    final userId = currentUser.id;
+    final fetchNote = await document.get();
+    return CloudNote(
+      documentId: fetchNote.id,
+      ownerUserId: userId,
+      text: '',
+    );
   }
 
   static final firebaseCloudStorageShared =

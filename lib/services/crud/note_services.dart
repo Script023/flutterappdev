@@ -1,4 +1,6 @@
-import 'dart:async';
+// ignore_for_file: dangling_library_doc_comments
+
+/**import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutterappdev/extensions/list/filter.dart';
 import 'package:flutterappdev/services/crud/crud_exceptions.dart';
@@ -343,4 +345,4 @@ const createNoteTable = '''CREATE TABLE IF NOT EXISTS "note" (
         "is_synced_with_cloud" INTEGER NOT NULL,
         PRIMARY KEY("id" AUTOINCREMENT),
         FOREIGN KEY("user_id") REFERENCES "user"("id")
-      )''';
+      )''';**/
