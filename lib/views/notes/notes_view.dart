@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterappdev/enums/menu_action.dart';
 import 'package:flutterappdev/routes.dart';
 import 'package:flutterappdev/services/auth/auth_service.dart';
+import 'package:flutterappdev/services/auth/bloc/auth_bloc.dart';
+import 'package:flutterappdev/services/auth/bloc/auth_event.dart';
 import 'package:flutterappdev/services/cloud/cloud_note.dart';
 import 'package:flutterappdev/services/cloud/firebase_cloud_storage.dart';
 //import 'package:flutterappdev/services/crud/note_services.dart';
@@ -52,12 +55,16 @@ class _NotesViewState extends State<NotesView> {
                   //devtools.log(shouldLogout.toString());
                   //break;
                   if (shouldLogout) {
-                    await Authservice.firebase().signOut();
+                    context.read<AuthBloc>().add(
+                      AuthEventLogOut(),
+                    );
+                    /**await Authservice.firebase().signOut();
                     //do not want this screen overlapping with the login screen
                     //that is why we used pushedNamedAndRemoveUntil method
                     Navigator.of(
                       context,
                     ).pushNamedAndRemoveUntil(loginRoute, (_) => false);
+                    **/
                   }
               }
             },
@@ -73,29 +80,28 @@ class _NotesViewState extends State<NotesView> {
         ],
       ),
       body: StreamBuilder(
-                stream: _noteService.allNotes(ownerUserId: userId),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
-                  // if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  // return const Center(child: Text("No notes yet"));
-                  // }
-                  final allNotes = snapshot.data as Iterable<CloudNote>;
-                  return NotesListView(
-                    notes: allNotes.toList(),
-                    onDeleteNote: (note) async {
-                      await _noteService.deleteNote(documentId: note.documentId );
-                    },
-                    onTap: (note){
-                      Navigator.of(context).pushNamed(
-                        createOrUpdateNoteRoute,
-                        arguments: note,
-                      );
-                    },
-                  );
-                },
-              )
+        stream: _noteService.allNotes(ownerUserId: userId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+          // if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          // return const Center(child: Text("No notes yet"));
+          // }
+          final allNotes = snapshot.data as Iterable<CloudNote>;
+          return NotesListView(
+            notes: allNotes.toList(),
+            onDeleteNote: (note) async {
+              await _noteService.deleteNote(documentId: note.documentId);
+            },
+            onTap: (note) {
+              Navigator.of(
+                context,
+              ).pushNamed(createOrUpdateNoteRoute, arguments: note);
+            },
+          );
+        },
+      ),
     );
   }
 }

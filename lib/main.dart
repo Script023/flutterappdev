@@ -1,6 +1,10 @@
-import 'package:flutterappdev/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutterappdev/routes.dart';
+import 'package:flutterappdev/services/auth/bloc/auth_bloc.dart';
+import 'package:flutterappdev/services/auth/bloc/auth_event.dart';
+import 'package:flutterappdev/services/auth/bloc/auth_state.dart';
+import 'package:flutterappdev/services/auth/firebase_auth_provider.dart';
 import 'package:flutterappdev/views/login-views.dart';
 import 'package:flutterappdev/views/notes/create_update_note_view.dart';
 import 'package:flutterappdev/views/notes/notes_view.dart';
@@ -13,8 +17,11 @@ void main() {
   runApp(
     MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(primarySwatch: Colors.green),
-      home: const MyHomePage(),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: BlocProvider<AuthBloc>(
+        create: (context) => AuthBloc(FirebaseAuthProvider()),
+        child: const MyHomePage(),
+      ),
       routes: {
         loginRoute: (context) => const LoginView(),
         registerRoute: (context) => const RegisterView(),
@@ -31,7 +38,24 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    context.read<AuthBloc>().add(const AuthEventIntialize());
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        if (state is AuthStateLoggedIn) {
+          return const NotesView();
+        } else if (state is AuthStateNeedVerification) {
+          return const VerifyEmailView();
+        } else if (state is AuthStateLoggedOut) {
+          return const LoginView();
+        } else {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+      },
+    );
+
+    /**return FutureBuilder(
       future: Authservice.firebase().initialize(),
       builder: (context, snapshot) {
         switch (snapshot.connectionState) {
@@ -51,5 +75,7 @@ class MyHomePage extends StatelessWidget {
         }
       },
     );
+  }
+  **/
   }
 }
