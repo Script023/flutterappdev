@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutterappdev/services/auth/auth_user.dart';
+import 'package:equatable/equatable.dart';
 
 @immutable
-abstract class AuthState {
+abstract class AuthState{
   const AuthState();
 }
 
 // lets craete a state for the authentication to describe its loading
-class AuthStateLoading extends AuthState {
-  const AuthStateLoading();
+class AuthStateUninitialized extends AuthState {
+  const AuthStateUninitialized();
+}
+
+class AuthStateRegistering extends AuthState {
+  final Exception? exception;
+  const AuthStateRegistering(this.exception);
 }
 
 class AuthStateLoggedIn extends AuthState {
@@ -18,16 +24,15 @@ class AuthStateLoggedIn extends AuthState {
   const AuthStateLoggedIn(this.user);
 }
 
-
 class AuthStateNeedVerification extends AuthState {
   const AuthStateNeedVerification();
 }
 
-class AuthStateLoggedOut extends AuthState {
+class AuthStateLoggedOut extends AuthState with EquatableMixin {
   final Exception? exception;
-  const AuthStateLoggedOut(this.exception);
-}
+  final bool isLoading;
+  const AuthStateLoggedOut({required this.exception, required this.isLoading});
 
-class AuthStateLoggedOutFailure extends AuthState {
-  const AuthStateLoggedOutFailure();
+  @override
+  List<Object?> get props => [exception, isLoading];
 }

@@ -7,7 +7,6 @@ import 'package:flutterappdev/services/auth/bloc/auth_bloc.dart';
 import 'package:flutterappdev/services/auth/bloc/auth_event.dart';
 import 'package:flutterappdev/services/cloud/cloud_note.dart';
 import 'package:flutterappdev/services/cloud/firebase_cloud_storage.dart';
-//import 'package:flutterappdev/services/crud/note_services.dart';
 import 'package:flutterappdev/utilities/dailogs/logout_dailog.dart';
 import 'package:flutterappdev/views/notes/notes_list_view.dart';
 
@@ -55,16 +54,7 @@ class _NotesViewState extends State<NotesView> {
                   //devtools.log(shouldLogout.toString());
                   //break;
                   if (shouldLogout) {
-                    context.read<AuthBloc>().add(
-                      AuthEventLogOut(),
-                    );
-                    /**await Authservice.firebase().signOut();
-                    //do not want this screen overlapping with the login screen
-                    //that is why we used pushedNamedAndRemoveUntil method
-                    Navigator.of(
-                      context,
-                    ).pushNamedAndRemoveUntil(loginRoute, (_) => false);
-                    **/
+                    context.read<AuthBloc>().add(AuthEventLogOut());
                   }
               }
             },
