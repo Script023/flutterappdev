@@ -1,0 +1,17 @@
+workflows:
+  build-app:
+    name: Build Android and iOS
+    environment:
+      flutter: stable
+    scripts:
+      - name: Set iOS Deployment Target
+        script: |
+          sed -i '' 's/platform :ios, .*/platform :ios, "15.0"/' ios/Podfile
+      - name: Flutter clean
+        script: flutter clean
+      - name: Get dependencies
+        script: flutter pub get
+      - name: Build Android APK
+        script: flutter build apk --release
+      - name: Build iOS IPA
+        script: flutter build ipa --release

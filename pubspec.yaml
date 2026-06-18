@@ -47,6 +47,7 @@ dependencies:
   test_api: ^0.7.11
   matcher: ^0.12.19
   equatable: ^2.0.8
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -101,3 +102,16 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+assets:
+       -assets/icon.png
+#launcher icon configuration
+flutter_launcher_icons:
+android:  true
+ios: true
+image_path: "assets/icon.png"
+windows: 
+  generate: true
+  image_path: "assets/icon.png"
+  macos:
+   generate: true
+   image_path: "assets/icon.png"
