@@ -115,3 +115,17 @@ windows:
   macos:
    generate: true
    image_path: "assets/icon.png"
+   #launcher fonts configuration
+   fonts: 
+       -family: Merriweather
+       fonts:
+       -assets: assets/fonts/Merriweather-96pt-Regular.ttf
+       -assets: assets/fonts/Merriweather-120pt-Bold.ttf
+       weight: 700
+       -family: PlayfairDisplay
+       fonts:
+       -assets: assets/fonts/PlayfairDisplay-Regular.ttf
+       -assets: assets/fonts/PlayFairDisplay-Italic.ttf
+       style: italic
+       -assets: assets/fonts/PlayfairDisplay-Bold.ttf
+       weight: 700
