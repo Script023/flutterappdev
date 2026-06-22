@@ -52,7 +52,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await provider.sendEmailVerification();
       //when you are in the verified email view based on the logic of the application
       // you are not been sent to another screen you remain at that particular screen
-      // even after clicjing the send verification button that is why the exact state
+      // even after clicking the send verification button that is why the exact state
       // is being emitted
       emit(state);
     });
@@ -90,7 +90,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           loadingText: 'Please wait while I log you in',
         ),
       );
-      await Future.delayed(const Duration(seconds: 3));
+      //await Future.delayed(const Duration(seconds: 3));
       final email = event.email;
       final password = event.password;
       try {
@@ -118,5 +118,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthEventShouldRegister>((event, emit) async {
       emit(const AuthStateRegistering(exception: null, isLoading: false));
     });
+
   }
 }

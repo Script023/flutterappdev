@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutterappdev/Hompage/memo_hompage.dart';
 import 'package:flutterappdev/Hompage/folio_Homepage.dart';
+import 'package:flutterappdev/Hompage/memo_hompage.dart';
 
-class LeavesHomePage extends StatelessWidget {
+class LeavesHomePage extends StatefulWidget {
   const LeavesHomePage({super.key});
 
+  @override
+  State<LeavesHomePage> createState() => _LeavesHomePageState();
+}
+
+class _LeavesHomePageState extends State<LeavesHomePage> {
+  int _selectedIndex = 0;
   void _onItemTapped(BuildContext context, int index) {
     if (index == 1) {
       Navigator.push(
@@ -14,10 +20,9 @@ class LeavesHomePage extends StatelessWidget {
     } else if (index == 2) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const FolioPage()),
+        MaterialPageRoute(builder: (context) => FolioPage()),
       );
     }
-    // index == 0 means LEAVES, so we stay on this page
   }
 
   @override
@@ -29,14 +34,13 @@ class LeavesHomePage extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              color: Colors.black,
-              child: Image.asset('assets/icon.png', width: 40, height: 40),
+              child: Image.asset('assets/icon/icon.png', width: 80, height: 80),
             ),
             const SizedBox(height: 20),
             const Text(
               'leaves',
               style: TextStyle(
-                fontFamily: 'PlayFairDisplay',
+                fontFamily: 'PlayfairDisplay', // corrected
                 fontSize: 32,
                 fontWeight: FontWeight.w600,
               ),
@@ -50,30 +54,6 @@ class LeavesHomePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 30),
-            // Buttons for Leaves
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-              ),
-              onPressed: () {
-                print("Leaves Sign in tapped");
-              },
-              child: const Text('Sign in'),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-              ),
-              onPressed: () {
-                print("Leaves Get started tapped");
-              },
-              child: const Text('Get started'),
-            ),
           ],
         ),
       ),
@@ -83,9 +63,14 @@ class LeavesHomePage extends StatelessWidget {
           BottomNavigationBarItem(icon: Icon(Icons.note), label: 'MEMO'),
           BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'FOLIO'),
         ],
-        currentIndex: 0, // always highlight LEAVES since this is its page
+        currentIndex: _selectedIndex,
         selectedItemColor: Colors.brown,
-        onTap: (index) => _onItemTapped(context, index),
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+          _onItemTapped(context, index);
+        },
       ),
     );
   }

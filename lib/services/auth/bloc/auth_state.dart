@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutterappdev/services/auth/auth_user.dart';
 import 'package:equatable/equatable.dart';
 
+
 @immutable
 abstract class AuthState {
   final bool isLoading;
@@ -35,10 +36,11 @@ class AuthStateLoggedIn extends AuthState {
 class AuthStateForgotPassword extends AuthState {
   final Exception? exception;
   final bool hasSentEmail;
-  const AuthStateForgotPassword(
-    {required super.isLoading,
-     required this.exception, 
-     required this.hasSentEmail});
+  const AuthStateForgotPassword({
+    required super.isLoading,
+    required this.exception,
+    required this.hasSentEmail,
+  });
 }
 
 class AuthStateNeedVerification extends AuthState {
@@ -56,3 +58,4 @@ class AuthStateLoggedOut extends AuthState with EquatableMixin {
   @override
   List<Object?> get props => [exception, isLoading];
 }
+
